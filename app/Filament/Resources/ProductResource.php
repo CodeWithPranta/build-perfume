@@ -28,7 +28,7 @@ class ProductResource extends Resource
                     ->required()
                     ->panelLayout('grid')
                     ->columnSpanFull(),
-                Forms\Components\Textarea::make('description')
+                Forms\Components\RichEditor::make('description')
                     ->required()
                     ->columnSpanFull(),
 
