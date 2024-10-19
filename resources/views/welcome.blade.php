@@ -148,7 +148,7 @@
             font-size: 18px;
             font-weight: bold;
             margin-bottom: 10px;
-            color: #333;
+            color: #555;
         }
 
         .option-block {
@@ -224,7 +224,7 @@
 <body class="bg-pink-100">
 
     <div class="container mx-auto py-5">
-        <div class="progress-header">
+        <div class="progress-header mx-2 md:mx-6">
             <div class="progress-container">
                 <div class="step">
                     <div class="circle" id="step1">1</div>
@@ -247,7 +247,7 @@
             <div class="text-center pb-4">
                 <h1 class="my-3 text-3xl text-gray-700 uppercase font-bold font-mono">First, we'll need answers from you.</h1>
             </div>
-            <!-- Form with Questions -->
+           <!-- Form with Questions -->
             <form id="form" action="#" method="POST">
                 @csrf
                 @foreach($questions as $question)
@@ -260,7 +260,7 @@
                             @foreach($options as $option)
                                 <div class="option-block">
                                     <label>
-                                        <input type="radio" name="answers[{{ $question->id }}]" value="{{ $option['name'] }}">
+                                        <input type="radio" name="answers[{{ $question->id }}]" value="{{ $option['name'] }}" required>
                                         {{ $option['name'] }}
                                     </label>
                                 </div>
@@ -271,36 +271,60 @@
                     </div>
                 @endforeach
 
+                <!-- Separator -->
+                <hr style="margin: 20px 0; border: 1px solid #ccc;">
+
+                <!-- Email Field -->
+                <div class="question-block">
+                    <label for="email" class="question-title">Enter your email to receive your suggested perfume:</label>
+                    <input type="email" name="email" id="email" required placeholder="your-email@example.com" style="width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #ccc; border-radius: 5px;" required>
+                </div>
+
+                <!-- Submit Button -->
                 <button type="submit">Submit</button>
             </form>
+
         </div>
     </div>
 
     <script>
-        const form = document.getElementById('form');
-        const progressBarFill = document.getElementById('progress-bar-fill');
-        const progressPercent = document.getElementById('progress-percent');
-        const circles = document.querySelectorAll('.circle');
+const form = document.getElementById('form');
+const progressBarFill = document.getElementById('progress-bar-fill');
+const progressPercent = document.getElementById('progress-percent');
+const circles = document.querySelectorAll('.circle');
 
-        function updateProgressBar() {
-            const totalQuestions = form.querySelectorAll('.question-block').length;
-            const answeredQuestions = Array.from(form.querySelectorAll('input[type="radio"]')).filter(input => input.checked).length;
+function updateProgressBar() {
+    // Get the total number of question blocks (including the email field as +1)
+    const totalQuestions = form.querySelectorAll('.question-block').length; // This includes the email field since it's part of the form
+    const answeredQuestions = Array.from(form.querySelectorAll('input[type="radio"]')).filter(input => input.checked).length;
 
-            const percentage = Math.round((answeredQuestions / totalQuestions) * 100);
-            progressBarFill.style.width = percentage + '%';
-            progressPercent.textContent = percentage + '%';
+    // Check if the email field is filled
+    const emailFilled = form.querySelector('input[type="email"]').value.trim() !== '';
 
-            // Update circle progress steps
-            circles.forEach((circle, index) => {
-                if (percentage >= (index + 1) * 33) {
-                    circle.classList.add('active');
-                } else {
-                    circle.classList.remove('active');
-                }
-            });
+    // Increment the answeredQuestions if email is filled
+    const completedSteps = answeredQuestions + (emailFilled ? 1 : 0);
+
+    // Calculate the percentage of completed steps
+    const percentage = Math.round((completedSteps / totalQuestions) * 100);
+
+    // Update the progress bar width and the percentage text
+    progressBarFill.style.width = percentage + '%';
+    progressPercent.textContent = percentage + '%';
+
+    // Update the progress circle steps based on the calculated percentage
+    const stepPercentage = 100 / circles.length;
+    circles.forEach((circle, index) => {
+        if (percentage >= (index + 1) * stepPercentage) {
+            circle.classList.add('active');
+        } else {
+            circle.classList.remove('active');
         }
+    });
+}
 
-        form.addEventListener('input', updateProgressBar);
+// Listen for changes in the form to update the progress bar
+form.addEventListener('input', updateProgressBar);
+
     </script>
 
 </body>
