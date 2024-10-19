@@ -2,20 +2,16 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Laravel</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <title>Laravel Progress Bar</title>
 
     <!-- Styles / Scripts -->
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
     <style>
-         html, body {
+       html, body {
             height: 100%;
             margin: 0;
             padding: 0;
@@ -144,19 +140,36 @@
             color: #555;
         }
 
-        input, select, textarea {
-            width: 100%;
-            padding: 12px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            margin-top: 6px;
-            margin-bottom: 12px;
-            font-size: 14px;
+        .question-block {
+            margin-bottom: 20px;
+        }
+
+        .question-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
             color: #333;
         }
 
-        input:focus, select:focus, textarea:focus {
-            border-color: #4CAF50;
+        .option-block {
+            margin-bottom: 10px;
+        }
+
+        .option-block label {
+            display: flex;
+            align-items: center;
+        }
+
+        .option-block label img {
+            margin-left: 10px;
+            width: 50px;
+        }
+
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        input[type="radio"]:focus {
             outline: none;
             box-shadow: 0 0 5px rgba(0, 150, 0, 0.1);
         }
@@ -208,9 +221,10 @@
         }
     </style>
 </head>
-<body class="font-sans antialiased dark:bg-pink-100 dark:text-white/50">
+<body class="bg-pink-100">
+
     <div class="container mx-auto py-5">
-        <div class="progress-header mx-2">
+        <div class="progress-header">
             <div class="progress-container">
                 <div class="step">
                     <div class="circle" id="step1">1</div>
@@ -223,64 +237,41 @@
                 </div>
             </div>
 
-            <!-- Progress bar -->
             <div class="progress-bar">
                 <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%;"></div>
             </div>
             <div class="progress-percent" id="progress-percent">0%</div>
         </div>
 
-
         <div class="form-container">
-            <!-- Contact Form -->
-            <div class="text-center">
+            <div class="text-center pb-4">
                 <h1 class="my-3 text-3xl text-gray-700 uppercase font-bold font-mono">First, we'll need answers from you.</h1>
             </div>
-
-            <form id="form">
-                <div>
-                    <label for="name">Full Name</label>
-                    <input type="text" name="name" id="name" placeholder="John Doe" required />
-                </div>
-                <div>
-                    <label for="email">Email Address</label>
-                    <input type="email" name="email" id="email" placeholder="you@company.com" required />
-                </div>
-                <div>
-                    <label for="phone">Phone Number</label>
-                    <input type="text" name="phone" id="phone" placeholder="+1 (555) 1234-567" required />
-                </div>
-                <div>
-                    <label for="country">Country</label>
-                    <select name="country" id="country" required>
-                        <option></option>
-                        <option>Ireland</option>
-                        <option>USA</option>
-                        <option>Canada</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="message">Your Message</label>
-                    <textarea name="message" id="message" placeholder="Your Message" rows="5" required></textarea>
-                </div>
-                <div>
-                    <label>Agree to Privacy Policy</label>
-                    <input type="checkbox" id="checkbox" name="checkbox" required />
-                </div>
-                <div>
-                    <label>Are you happy?</label>
-                    <div>
-                        <label>
-                            <input type="radio" name="happy" value="yes" required />
-                            Yes
-                        </label>
-                        <label>
-                            <input type="radio" name="happy" value="no" required />
-                            No
-                        </label>
+            <!-- Form with Questions -->
+            <form id="form" action="#" method="POST">
+                @csrf
+                @foreach($questions as $question)
+                    <div class="question-block">
+                        <div class="question-title">{{ $question->title }}</div>
+                        @php
+                            $options = is_string($question->options) ? json_decode($question->options, true) : $question->options;
+                        @endphp
+                        @if(is_array($options))
+                            @foreach($options as $option)
+                                <div class="option-block">
+                                    <label>
+                                        <input type="radio" name="answers[{{ $question->id }}]" value="{{ $option['name'] }}">
+                                        {{ $option['name'] }}
+                                    </label>
+                                </div>
+                            @endforeach
+                        @else
+                            <p>No options available for this question.</p>
+                        @endif
                     </div>
-                </div>
-                <button type="submit">Send Message</button>
+                @endforeach
+
+                <button type="submit">Submit</button>
             </form>
         </div>
     </div>
@@ -290,20 +281,16 @@
         const progressBarFill = document.getElementById('progress-bar-fill');
         const progressPercent = document.getElementById('progress-percent');
         const circles = document.querySelectorAll('.circle');
-        const totalFields = form.querySelectorAll('input[required], select[required], textarea[required]').length;
 
         function updateProgressBar() {
-            const filledFields = Array.from(form.elements).filter(el =>
-                (el.type !== 'radio' && el.type !== 'checkbox' && el.value.trim()) ||
-                (el.type === 'checkbox' && el.checked) ||
-                (el.type === 'radio' && document.querySelector(`input[name="${el.name}"]:checked`))
-            ).length;
+            const totalQuestions = form.querySelectorAll('.question-block').length;
+            const answeredQuestions = Array.from(form.querySelectorAll('input[type="radio"]')).filter(input => input.checked).length;
 
-            const percentage = Math.round((filledFields / totalFields) * 100);
+            const percentage = Math.round((answeredQuestions / totalQuestions) * 100);
             progressBarFill.style.width = percentage + '%';
             progressPercent.textContent = percentage + '%';
 
-            // Update step circles
+            // Update circle progress steps
             circles.forEach((circle, index) => {
                 if (percentage >= (index + 1) * 33) {
                     circle.classList.add('active');
@@ -315,5 +302,6 @@
 
         form.addEventListener('input', updateProgressBar);
     </script>
+
 </body>
 </html>
