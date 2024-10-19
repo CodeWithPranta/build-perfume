@@ -288,42 +288,42 @@
     </div>
 
     <script>
-const form = document.getElementById('form');
-const progressBarFill = document.getElementById('progress-bar-fill');
-const progressPercent = document.getElementById('progress-percent');
-const circles = document.querySelectorAll('.circle');
+        const form = document.getElementById('form');
+        const progressBarFill = document.getElementById('progress-bar-fill');
+        const progressPercent = document.getElementById('progress-percent');
+        const circles = document.querySelectorAll('.circle');
 
-function updateProgressBar() {
-    // Get the total number of question blocks (including the email field as +1)
-    const totalQuestions = form.querySelectorAll('.question-block').length; // This includes the email field since it's part of the form
-    const answeredQuestions = Array.from(form.querySelectorAll('input[type="radio"]')).filter(input => input.checked).length;
+        function updateProgressBar() {
+            // Get the total number of question blocks (including the email field as +1)
+            const totalQuestions = form.querySelectorAll('.question-block').length; // This includes the email field since it's part of the form
+            const answeredQuestions = Array.from(form.querySelectorAll('input[type="radio"]')).filter(input => input.checked).length;
 
-    // Check if the email field is filled
-    const emailFilled = form.querySelector('input[type="email"]').value.trim() !== '';
+            // Check if the email field is filled
+            const emailFilled = form.querySelector('input[type="email"]').value.trim() !== '';
 
-    // Increment the answeredQuestions if email is filled
-    const completedSteps = answeredQuestions + (emailFilled ? 1 : 0);
+            // Increment the answeredQuestions if email is filled
+            const completedSteps = answeredQuestions + (emailFilled ? 1 : 0);
 
-    // Calculate the percentage of completed steps
-    const percentage = Math.round((completedSteps / totalQuestions) * 100);
+            // Calculate the percentage of completed steps
+            const percentage = Math.round((completedSteps / totalQuestions) * 100);
 
-    // Update the progress bar width and the percentage text
-    progressBarFill.style.width = percentage + '%';
-    progressPercent.textContent = percentage + '%';
+            // Update the progress bar width and the percentage text
+            progressBarFill.style.width = percentage + '%';
+            progressPercent.textContent = percentage + '%';
 
-    // Update the progress circle steps based on the calculated percentage
-    const stepPercentage = 100 / circles.length;
-    circles.forEach((circle, index) => {
-        if (percentage >= (index + 1) * stepPercentage) {
-            circle.classList.add('active');
-        } else {
-            circle.classList.remove('active');
+            // Update the progress circle steps based on the calculated percentage
+            const stepPercentage = 100 / circles.length;
+            circles.forEach((circle, index) => {
+                if (percentage >= (index + 1) * stepPercentage) {
+                    circle.classList.add('active');
+                } else {
+                    circle.classList.remove('active');
+                }
+            });
         }
-    });
-}
 
-// Listen for changes in the form to update the progress bar
-form.addEventListener('input', updateProgressBar);
+        // Listen for changes in the form to update the progress bar
+        form.addEventListener('input', updateProgressBar);
 
     </script>
 
