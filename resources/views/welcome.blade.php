@@ -133,7 +133,7 @@
             max-width: 600px;
             margin: 110px auto 0; /* Add 20px top margin */
             padding: 10px;
-            background-color: white;
+            background: linear-gradient(to bottom, #fce7f3, #f1ebef, #ffffff); /* Multi-color gradient */
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
         }
@@ -234,8 +234,7 @@
         <div class="form-container">
             <!-- Contact Form -->
             <div class="text-center">
-                <h1 class="my-3 text-3xl font-semibold text-gray-700">Contact Us</h1>
-                <p class="text-gray-400">Fill up the form below to send us a message.</p>
+                <h1 class="my-3 text-3xl text-gray-700 uppercase font-bold font-mono">First, we'll need answers from you.</h1>
             </div>
 
             <form id="form">
