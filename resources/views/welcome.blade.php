@@ -177,17 +177,12 @@
         button {
             width: 100%;
             padding: 12px;
-            background-color: #4CAF50;
             color: white;
-            font-size: 16px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
 
-        button:hover {
-            background-color: #45a049;
-        }
 
         /* Adjust the layout for smaller devices */
         @media screen and (max-width: 768px) {
@@ -248,7 +243,7 @@
                 <h1 class="my-3 text-3xl text-gray-700 uppercase font-bold font-mono">First, we'll need answers from you.</h1>
             </div>
            <!-- Form with Questions -->
-            <form id="form" action="#" method="POST">
+            <form id="form" action="{{ route('answers.store') }}" method="POST">
                 @csrf
                 @foreach($questions as $question)
                     <div class="question-block">
@@ -281,7 +276,7 @@
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit">Submit</button>
+                <button type="submit" class="bg-gray-600 text-lg uppercase hover:bg-gray-700">Submit</button>
             </form>
 
         </div>
