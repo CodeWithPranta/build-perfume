@@ -239,6 +239,15 @@
         </div>
 
         <div class="form-container">
+            @if(session('success'))
+                <div class="flex items-center justify-between p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
+                    <span class="font-medium">{{ session('success') }}</span>
+                    <button type="button" class="ml-2 -mx-1.5 text-green-500 hover:text-green-700" aria-label="Close" onclick="this.parentElement.remove()">
+                        <span class="sr-only">Close</span>
+                        &times;
+                    </button>
+                </div>
+            @endif
             <div class="text-center pb-4">
                 <h1 class="my-3 text-3xl text-gray-700 uppercase font-bold font-mono">First, we'll need answers from you.</h1>
             </div>
