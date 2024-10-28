@@ -33,7 +33,7 @@ class ProductResource extends Resource
                     ->required()
                     ->columnSpanFull(),
 
-                    Forms\Components\Repeater::make('question_answers')
+                Forms\Components\Repeater::make('question_answers')
                     ->schema(function () {
                         $questions = Question::all(); // Fetch all questions
                         $selectFields = [];

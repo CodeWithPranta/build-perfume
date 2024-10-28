@@ -10,10 +10,13 @@ class Question extends Model
     protected $fillable = [
         'title',
         'options',
+        'questions_for',
+        'alb_title',
     ];
 
     // Cast `options` to an array (since it is stored as JSON)
     protected $casts = [
         'options' => 'array',
     ];
+
 }

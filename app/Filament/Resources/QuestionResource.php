@@ -27,7 +27,16 @@ class QuestionResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('title')->required()->columnSpanFull(),
+                Forms\Components\Select::make('questions_for')
+                           ->options([
+                            'male' => 'Male',
+                            'female' => 'Female',
+                            'other' => 'Other',
+                           ])
+                           ->required(),
+                Forms\Components\TextInput::make('title')->required()->columnSpanFull()->label('Title in English'),
+                Forms\Components\TextInput::make('alb_title')->required()->columnSpanFull()
+                                   ->label('Title in Albanian'),
                 Forms\Components\Repeater::make('options')
                    ->schema([
                         FileUpload::make('image')
@@ -38,7 +47,8 @@ class QuestionResource extends Resource
                                 '4:3',
                                 '1:1',
                             ]),
-                        TextInput::make('name')->minLength(2)->required(),
+                        TextInput::make('name')->minLength(2)->required()->label('Name in English'),
+                        TextInput::make('alb_name')->minLength(2)->required()->label('Name in Albanian'),
                     ])
                     ->required()
             ]);
