@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Laravel Progress Bar</title>
+    <title> Perfume Builder </title>
 
     <!-- Styles / Scripts -->
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
@@ -183,6 +183,23 @@
             cursor: pointer;
         }
 
+        .styled-select {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            color: #555;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            margin-top: 10px;
+            cursor: pointer;
+            appearance: none; /* Remove default browser styling */
+        }
+
+        .styled-select:focus {
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 150, 0, 0.2);
+        }
 
         /* Adjust the layout for smaller devices */
         @media screen and (max-width: 768px) {
@@ -218,8 +235,8 @@
 </head>
 <body class="bg-pink-100">
 
-    <div class="container mx-auto py-5">
-        <div class="progress-header mx-2 md:mx-6">
+    <div class="container py-5 mx-auto">
+        <div class="mx-2 progress-header md:mx-6">
             <div class="progress-container">
                 <div class="step">
                     <div class="circle" id="step1">1</div>
@@ -248,12 +265,21 @@
                     </button>
                 </div>
             @endif
-            <div class="text-center pb-4">
-                <h1 class="my-3 text-3xl text-gray-700 uppercase font-bold font-mono">First, we'll need answers from you.</h1>
+            <div class="pb-4 text-center">
+                <h1 class="my-3 font-mono text-3xl font-bold text-gray-700 uppercase">First, we'll need answers from you.</h1>
             </div>
            <!-- Form with Questions -->
             <form id="form" action="{{ route('answers.store') }}" method="POST">
                 @csrf
+                <div class="question-block">
+                    <label for="gender" class="uppercase question-title">What is your gender?</label>
+                    <select name="gender" id="gender" class="styled-select" required>
+                        <option value="" disabled selected>Select your gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
                 @foreach($questions as $question)
                     <div class="question-block">
                         <div class="question-title">{{ $question->title }}</div>
@@ -285,7 +311,7 @@
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit" class="bg-gray-600 text-lg uppercase hover:bg-gray-700">Submit</button>
+                <button type="submit" class="text-lg uppercase bg-gray-600 hover:bg-gray-700">Submit</button>
             </form>
 
         </div>
@@ -305,8 +331,11 @@
             // Check if the email field is filled
             const emailFilled = form.querySelector('input[type="email"]').value.trim() !== '';
 
-            // Increment the answeredQuestions if email is filled
-            const completedSteps = answeredQuestions + (emailFilled ? 1 : 0);
+            // Check if the gender field has a selected value
+            const genderSelected = form.querySelector('select[name="gender"]').value.trim() !== '';
+
+            // Increment the answeredQuestions if email and gender are filled
+            const completedSteps = answeredQuestions + (emailFilled ? 1 : 0) + (genderSelected ? 1 : 0);
 
             // Calculate the percentage of completed steps
             const percentage = Math.round((completedSteps / totalQuestions) * 100);
@@ -328,6 +357,9 @@
 
         // Listen for changes in the form to update the progress bar
         form.addEventListener('input', updateProgressBar);
+
+        // Also listen for changes specifically on the select dropdown
+        form.querySelector('select[name="gender"]').addEventListener('change', updateProgressBar);
 
     </script>
 

@@ -24,11 +24,13 @@ class QuestionAnswerController extends Controller
     $validatedData = $request->validate([
         'email' => 'required|email',
         'answers' => 'required|array',
+        'gender' => 'required',
     ]);
 
     // Store data in the database
     $questionAnswer = QuestionAnswer::create([
         'email' => $validatedData['email'],
+        'gender' => $validatedData['gender'],
         'answers' => json_encode($validatedData['answers']),  // Convert answers array to JSON
     ]);
 

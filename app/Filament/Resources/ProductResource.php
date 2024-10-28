@@ -22,6 +22,13 @@ class ProductResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\Select::make('products_for')
+                    ->options([
+                        'male' => 'Male',
+                        'female' => 'Female',
+                        'Other' => 'Other',
+                    ])
+                    ->required(),
                 Forms\Components\TextInput::make('name')
                     ->required(),
                 Forms\Components\FileUpload::make('photos')
