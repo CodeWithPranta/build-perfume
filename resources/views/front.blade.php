@@ -74,7 +74,7 @@
                                 <div class="q-box__question">
                                     <input type="radio" name="answers[{{ $question->id }}]" id="option_{{ $question->id }}_{{ $index }}" value="{{ $option['name'] }}" class="form-check-input question__input" required>
                                     <label class="form-check-label question__label" for="option_{{ $question->id }}_{{ $index }}">
-                                        <img src="{{ asset('storage/'.$option['image']) }}" alt="" class="w-8 h-8">
+                                        <img src="{{ asset('storage/'.$option['image']) }}" alt="" width="140" height="140">
                                         {{ session('language') === 'alb' ? $option['alb_name'] : $option['name'] }}
                                     </label>
                                 </div>

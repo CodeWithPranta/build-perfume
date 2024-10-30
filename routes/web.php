@@ -8,6 +8,8 @@ use App\Http\Controllers\QuestionAnswer;
 use App\Http\Controllers\QuestionAnswerController;
 
 Route::get('/', [QuestionAnswerController::class, 'index']);
+Route::get('/suggested-products', [QuestionAnswerController::class, 'suggestedProducts'])->name('suggested.products');
+
 Route::post('/submit-answers', [QuestionAnswerController::class, 'store'])->name('answers.store');
 
 Route::post('/language-switch', [LanguageController::class, 'languageSwitch'])->name('language.switch');
@@ -21,3 +23,8 @@ Route::post('/language-switch', [LanguageController::class, 'languageSwitch'])->
 //         return 'Failed to send email: ' . $e->getMessage();
 //     }
 // });
+
+Route::get('/get-email', function() {
+    return response()->json(['user_email' => session('user_email')]);
+});
+

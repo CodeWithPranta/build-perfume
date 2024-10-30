@@ -27,6 +27,10 @@ class QuestionAnswerController extends Controller
         'gender' => 'required',
     ]);
 
+    // Store email in session
+    session(['user_email' => $validatedData['email']]);
+
+
     // Store data in the database
     $questionAnswer = QuestionAnswer::create([
         'email' => $validatedData['email'],
@@ -135,7 +139,101 @@ class QuestionAnswerController extends Controller
         }
     }
 
-    return redirect()->back()->with('success', 'Your answers have been submitted and suggestions sent via email!');
+    return redirect()->route('suggested.products')->with('success', 'Your answers have been submitted and suggestions sent via email!');
+
+}
+
+
+public function suggestedProducts(Request $request)
+{
+    // Retrieve the user's email from the session
+    $email = $request->session()->get('user_email');
+
+    //dd($email);
+
+    // Get the question answer record for that email
+    $questionAnswer = QuestionAnswer::where('email', $email)->first();
+
+    // If no record found, redirect with an error message
+    if (!$questionAnswer) {
+        return redirect()->back()->with('error', 'No answers found for this user.');
+    }
+
+    // Decode the user's answers
+    $userAnswers = json_decode($questionAnswer->answers, true);
+
+    // Fetch all products
+    $products = Product::all();
+
+    // Initialize an array for suggested products
+    $suggestedProducts = [];
+    $similarityScores = []; // To store similarity scores for products
+
+    foreach ($products as $product) {
+        // Decode product's questions
+        $productQuestions = is_string($product->question_answers)
+                    ? json_decode($product->question_answers, true)
+                    : $product->question_answers;
+
+        // Check if productQuestions is an array
+        if (!is_array($productQuestions) || is_null($productQuestions)) {
+            continue; // Skip if questions are not properly formatted
+        }
+
+        // Flatten the product questions (assumes only one set of questions)
+        $productQuestions = $productQuestions[0]; // Get the first (and assumed only) associative array
+
+        // Initialize matches counter
+        $matches = 0;
+
+        // Calculate similarity
+        foreach ($productQuestions as $key => $value) {
+            // Get the index from the question key
+            $index = str_replace('question_', '', $key); // Extract index from the question key
+
+            // Check if userAnswers has the corresponding index
+            if (isset($userAnswers[$index]) && trim(strtolower($userAnswers[$index])) === trim(strtolower($value))) {
+                $matches++;
+            }
+        }
+
+        // Calculate percentage similarity
+        $totalQuestions = count($productQuestions);
+        $similarityPercentage = ($totalQuestions > 0) ? ($matches / $totalQuestions) * 100 : 0;
+
+        // Store similarity scores for later use
+        $similarityScores[$product->id] = $similarityPercentage;
+
+        // If 100% match, add to suggested products immediately
+        if ($similarityPercentage === 100) {
+            $suggestedProducts[] = $product;
+        }
+    }
+
+    // If no 100% matches, find the most similar products
+    if (empty($suggestedProducts) && !empty($similarityScores)) {
+        // Get the maximum similarity percentage
+        $maxSimilarity = max($similarityScores);
+
+        // Find products with the maximum similarity percentage
+        $mostSimilarProducts = array_filter($similarityScores, function ($score) use ($maxSimilarity) {
+            return $score === $maxSimilarity;
+        });
+
+        // Fetch the products that are most similar
+        foreach ($mostSimilarProducts as $productId => $score) {
+            $product = Product::find($productId);
+            if ($product) {
+                $suggestedProducts[] = $product;
+            }
+        }
+
+    }
+
+     //dd($suggestedProducts);
+    // Pass the suggested products to the view
+    return view('suggested-products', compact('suggestedProducts'));
+
 }
 
 
