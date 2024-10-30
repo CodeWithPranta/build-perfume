@@ -15,7 +15,7 @@ class QuestionAnswerController extends Controller
     public function index(){
         $questions = Question::all();
 
-        return view('welcome', compact('questions'));
+        return view('front', compact('questions'));
     }
 
     public function store(Request $request)

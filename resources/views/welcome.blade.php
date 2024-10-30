@@ -291,7 +291,7 @@
         </div>
 
         <div class="form-container">
-            <div class="switch pt-10">
+            <div class="pt-10 switch">
                 @include('components.language-switch')
             </div>
             @if(session('success'))
@@ -313,110 +313,116 @@
                 </h1>
             </div>
            <!-- Form with Questions -->
-<form id="form" action="{{ route('answers.store') }}" method="POST">
-    @csrf
-    <div class="question-block mb-6">
-        <label for="gender" class="uppercase question-title block mb-2 font-semibold">
-            @if (session('language') === 'alb')
-                Cila është gjinia juaj?
-            @else
-                What is your gender?
-            @endif
-        </label>
-        <select name="gender" id="gender" class="styled-select p-2 border rounded w-full" required>
-            <option value="" disabled selected>
-                @if (session('language') === 'alb')
-                    Zgjidhni gjininë tuaj
-                @else
-                    Select your gender
-                @endif
-            </option>
-            <option value="male">
-                @if (session('language') === 'alb')
-                    Mashkull
-                @else
-                    Male
-                @endif
-            </option>
-            <option value="female">
-                @if (session('language') === 'alb')
-                    Femër
-                @else
-                    Female
-                @endif
-            </option>
-            <option value="other">
-                @if (session('language') === 'alb')
-                    Të tjera
-                @else
-                    Other
-                @endif
-            </option>
-        </select>
-    </div>
-
-    @foreach($questions as $question)
-        <div class="question-block mb-6">
-            <div class="question-title font-semibold mb-2">
-                @if (session('language') === 'alb')
-                    {{ $question->alb_title }}
-                @else
-                    {{ $question->title }}
-                @endif
-            </div>
-            @php
-                $options = is_string($question->options) ? json_decode($question->options, true) : $question->options;
-            @endphp
-            @if(is_array($options))
-                <div class="flex flex-wrap gap-4">
-                    @foreach($options as $option)
-                        <div class="option-block flex items-center gap-2">
-                            <img src="{{ asset('storage/'.$option['image']) }}" alt="" class="w-10 h-10">
-                            <label class="flex items-center space-x-2">
-                                <input type="radio" name="answers[{{ $question->id }}]" value="{{ $option['name'] }}" required>
-                                <span>
-                                    @if (session('language') === 'alb')
-                                        {{ $option['alb_name'] }}
-                                    @else
-                                        {{ $option['name'] }}
-                                    @endif
-                                </span>
-                            </label>
-                        </div>
-                    @endforeach
+            <form id="form" action="{{ route('answers.store') }}" method="POST">
+                @csrf
+                <div class="mb-6 question-block">
+                    <label for="gender" class="block mb-2 font-semibold uppercase question-title">
+                        @if (session('language') === 'alb')
+                            Cila është gjinia juaj?
+                        @else
+                            What is your gender?
+                        @endif
+                    </label>
+                    <select name="gender" id="gender" class="w-full p-2 border rounded styled-select" required>
+                        <option value="" disabled selected>
+                            @if (session('language') === 'alb')
+                                Zgjidhni gjininë tuaj
+                            @else
+                                Select your gender
+                            @endif
+                        </option>
+                        <option value="male">
+                            @if (session('language') === 'alb')
+                                Mashkull
+                            @else
+                                Male
+                            @endif
+                        </option>
+                        <option value="female">
+                            @if (session('language') === 'alb')
+                                Femër
+                            @else
+                                Female
+                            @endif
+                        </option>
+                        <option value="other">
+                            @if (session('language') === 'alb')
+                                Të tjera
+                            @else
+                                Other
+                            @endif
+                        </option>
+                    </select>
                 </div>
-            @else
-                <p>No options available for this question.</p>
-            @endif
+
+                @foreach($questions as $question)
+                    <div class="mb-6 question-block">
+                        <div class="mb-2 font-semibold question-title">
+                            @if (session('language') === 'alb')
+                                {{ $question->alb_title }}
+                            @else
+                                {{ $question->title }}
+                            @endif
+                        </div>
+                        @php
+                            $options = is_string($question->options) ? json_decode($question->options, true) : $question->options;
+                        @endphp
+                        @if(is_array($options))
+                            <div class="flex flex-wrap gap-4">
+                                @foreach($options as $option)
+                                    <div class="flex items-center gap-2 option-block">
+                                        <img src="{{ asset('storage/'.$option['image']) }}" alt="" class="w-10 h-10">
+                                        <label class="flex items-center space-x-2">
+                                            <input type="radio" name="answers[{{ $question->id }}]" value="{{ $option['name'] }}" required>
+                                            <span>
+                                                @if (session('language') === 'alb')
+                                                    {{ $option['alb_name'] }}
+                                                @else
+                                                    {{ $option['name'] }}
+                                                @endif
+                                            </span>
+                                        </label>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <p>No options available for this question.</p>
+                        @endif
+                    </div>
+                @endforeach
+
+                <!-- Separator -->
+                <hr class="my-6 border-gray-300">
+
+                <!-- Email Field -->
+                <div class="mb-6 question-block">
+                    <label for="email" class="block mb-2 font-semibold question-title">
+                        @if (session('language') === 'alb')
+                            Shkruani emailin tuaj për të marrë parfumin tuaj të sugjeruar:
+                        @else
+                            Enter your email to receive your suggested perfume:
+                        @endif
+                    </label>
+                    <input type="email" name="email" id="email" required placeholder="your-email@example.com" class="w-full p-3 border rounded" required>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="px-4 py-2 text-lg text-white uppercase bg-gray-600 rounded hover:bg-gray-700">
+                    @if (session('language') === 'alb')
+                        Paraqisni
+                    @else
+                        Submit
+                    @endif
+                </button>
+            </form>
         </div>
-    @endforeach
-
-    <!-- Separator -->
-    <hr class="my-6 border-gray-300">
-
-    <!-- Email Field -->
-    <div class="question-block mb-6">
-        <label for="email" class="question-title block mb-2 font-semibold">
-            @if (session('language') === 'alb')
-                Shkruani emailin tuaj për të marrë parfumin tuaj të sugjeruar:
-            @else
-                Enter your email to receive your suggested perfume:
-            @endif
-        </label>
-        <input type="email" name="email" id="email" required placeholder="your-email@example.com" class="w-full p-3 border rounded" required>
-    </div>
-
-    <!-- Submit Button -->
-    <button type="submit" class="text-lg uppercase bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded">
-        @if (session('language') === 'alb')
-            Paraqisni
-        @else
-            Submit
-        @endif
-    </button>
-</form>
-
-
+        <div class="flex items-center justify-between md:pb-20">
+            <div>
+                <img src="{{asset('images/perfume-bottle.jpg')}}" alt="perfume 1" class="w-40 h-full rounded-full">
+            </div>
+            <div>
+                <img src="{{asset('images/perfume-bottle2.jpg')}}" alt="" class="w-40 h-full rounded-full">
+            </div>
         </div>
     </div>
 
