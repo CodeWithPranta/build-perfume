@@ -20,7 +20,7 @@ class QuestionResource extends Resource
 {
     protected static ?string $model = Question::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-Question-Mark-Circle';
+    protected static ?string $navigationIcon = 'heroicon-o-question-mark-circle';
     protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form

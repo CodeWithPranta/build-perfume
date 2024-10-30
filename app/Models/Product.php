@@ -20,10 +20,4 @@ class Product extends Model
         'photos' => 'array',
         'question_answers' => 'array',
     ];
-
-    public function getQuestionAnswersAttribute($value)
-    {
-        $translatedValues = $this->getTranslations('question_answers');
-        return $translatedValues[app()->getLocale()] ?? [];
-    }
 }

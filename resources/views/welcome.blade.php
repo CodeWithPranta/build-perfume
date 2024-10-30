@@ -10,13 +10,44 @@
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
-    <style>
-       html, body {
+    <style> /* Basic Styling */
+        html, body {
             height: 100%;
             margin: 0;
             padding: 0;
+            overflow: hidden;
+        }
+        body {
+            font-family: 'Figtree', sans-serif;
+            background-color: #f8fafc;
+            color: #333;
         }
 
+        /* Bubble Animation Styling */
+        .bubble {
+            position: absolute;
+            bottom: -50px;
+            background-color: rgba(255, 192, 203, 0.5); /* Light pink for perfume effect */
+            border-radius: 50%;
+            opacity: 0.7;
+            animation: rise 10s infinite ease-in-out;
+            filter: blur(1px);
+        }
+
+        /* Keyframes for rising bubbles */
+        @keyframes rise {
+            0% {
+                transform: translateY(0) scale(0.8);
+                opacity: 0.4;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-100vh) scale(1.2);
+                opacity: 0;
+            }
+        }
         .progress-header {
             padding: 10px 0; /* Adjust padding as needed */
         }
@@ -235,6 +266,10 @@
 </head>
 <body class="bg-pink-100">
 
+    <!-- Bubble Container -->
+    <div id="bubble-container"></div>
+
+
     <div class="container py-5 mx-auto">
         <div class="mx-2 progress-header md:mx-6">
             <div class="progress-container">
@@ -256,6 +291,9 @@
         </div>
 
         <div class="form-container">
+            <div class="switch pt-10">
+                @include('components.language-switch')
+            </div>
             @if(session('success'))
                 <div class="flex items-center justify-between p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
                     <span class="font-medium">{{ session('success') }}</span>
@@ -266,58 +304,151 @@
                 </div>
             @endif
             <div class="pb-4 text-center">
-                <h1 class="my-3 font-mono text-3xl font-bold text-gray-700 uppercase">First, we'll need answers from you.</h1>
+                <h1 class="my-3 font-mono text-3xl font-bold text-gray-700 uppercase">
+                  @if (session('language') === 'alb')
+                      Së pari, ne do të kemi nevojë për përgjigje nga ju.
+                  @else
+                      First, we'll need answers from you.
+                  @endif
+                </h1>
             </div>
            <!-- Form with Questions -->
-            <form id="form" action="{{ route('answers.store') }}" method="POST">
-                @csrf
-                <div class="question-block">
-                    <label for="gender" class="uppercase question-title">What is your gender?</label>
-                    <select name="gender" id="gender" class="styled-select" required>
-                        <option value="" disabled selected>Select your gender</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-                @foreach($questions as $question)
-                    <div class="question-block">
-                        <div class="question-title">{{ $question->title }}</div>
-                        @php
-                            $options = is_string($question->options) ? json_decode($question->options, true) : $question->options;
-                        @endphp
-                        @if(is_array($options))
-                            @foreach($options as $option)
-                                <div class="option-block">
-                                    <label>
-                                        <input type="radio" name="answers[{{ $question->id }}]" value="{{ $option['name'] }}" required>
+<form id="form" action="{{ route('answers.store') }}" method="POST">
+    @csrf
+    <div class="question-block mb-6">
+        <label for="gender" class="uppercase question-title block mb-2 font-semibold">
+            @if (session('language') === 'alb')
+                Cila është gjinia juaj?
+            @else
+                What is your gender?
+            @endif
+        </label>
+        <select name="gender" id="gender" class="styled-select p-2 border rounded w-full" required>
+            <option value="" disabled selected>
+                @if (session('language') === 'alb')
+                    Zgjidhni gjininë tuaj
+                @else
+                    Select your gender
+                @endif
+            </option>
+            <option value="male">
+                @if (session('language') === 'alb')
+                    Mashkull
+                @else
+                    Male
+                @endif
+            </option>
+            <option value="female">
+                @if (session('language') === 'alb')
+                    Femër
+                @else
+                    Female
+                @endif
+            </option>
+            <option value="other">
+                @if (session('language') === 'alb')
+                    Të tjera
+                @else
+                    Other
+                @endif
+            </option>
+        </select>
+    </div>
+
+    @foreach($questions as $question)
+        <div class="question-block mb-6">
+            <div class="question-title font-semibold mb-2">
+                @if (session('language') === 'alb')
+                    {{ $question->alb_title }}
+                @else
+                    {{ $question->title }}
+                @endif
+            </div>
+            @php
+                $options = is_string($question->options) ? json_decode($question->options, true) : $question->options;
+            @endphp
+            @if(is_array($options))
+                <div class="flex flex-wrap gap-4">
+                    @foreach($options as $option)
+                        <div class="option-block flex items-center gap-2">
+                            <img src="{{ asset('storage/'.$option['image']) }}" alt="" class="w-10 h-10">
+                            <label class="flex items-center space-x-2">
+                                <input type="radio" name="answers[{{ $question->id }}]" value="{{ $option['name'] }}" required>
+                                <span>
+                                    @if (session('language') === 'alb')
+                                        {{ $option['alb_name'] }}
+                                    @else
                                         {{ $option['name'] }}
-                                    </label>
-                                </div>
-                            @endforeach
-                        @else
-                            <p>No options available for this question.</p>
-                        @endif
-                    </div>
-                @endforeach
-
-                <!-- Separator -->
-                <hr style="margin: 20px 0; border: 1px solid #ccc;">
-
-                <!-- Email Field -->
-                <div class="question-block">
-                    <label for="email" class="question-title">Enter your email to receive your suggested perfume:</label>
-                    <input type="email" name="email" id="email" required placeholder="your-email@example.com" style="width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #ccc; border-radius: 5px;" required>
+                                    @endif
+                                </span>
+                            </label>
+                        </div>
+                    @endforeach
                 </div>
+            @else
+                <p>No options available for this question.</p>
+            @endif
+        </div>
+    @endforeach
 
-                <!-- Submit Button -->
-                <button type="submit" class="text-lg uppercase bg-gray-600 hover:bg-gray-700">Submit</button>
-            </form>
+    <!-- Separator -->
+    <hr class="my-6 border-gray-300">
+
+    <!-- Email Field -->
+    <div class="question-block mb-6">
+        <label for="email" class="question-title block mb-2 font-semibold">
+            @if (session('language') === 'alb')
+                Shkruani emailin tuaj për të marrë parfumin tuaj të sugjeruar:
+            @else
+                Enter your email to receive your suggested perfume:
+            @endif
+        </label>
+        <input type="email" name="email" id="email" required placeholder="your-email@example.com" class="w-full p-3 border rounded" required>
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" class="text-lg uppercase bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded">
+        @if (session('language') === 'alb')
+            Paraqisni
+        @else
+            Submit
+        @endif
+    </button>
+</form>
+
 
         </div>
     </div>
 
     <script>
+         // Generate bubbles with varying sizes and animation durations
+         function createBubble() {
+            const bubble = document.createElement("div");
+            bubble.classList.add("bubble");
+
+            // Random size between 20px and 80px
+            const size = Math.random() * 60 + 20;
+            bubble.style.width = `${size}px`;
+            bubble.style.height = `${size}px`;
+
+            // Random horizontal position
+            bubble.style.left = `${Math.random() * 100}vw`;
+
+            // Random animation duration between 6 and 12 seconds
+            bubble.style.animationDuration = `${Math.random() * 6 + 6}s`;
+
+            // Append bubble to container
+            document.getElementById("bubble-container").appendChild(bubble);
+
+            // Remove bubble after animation completes
+            bubble.addEventListener("animationend", () => {
+                bubble.remove();
+            });
+        }
+
+        // Continuously create bubbles at intervals
+        setInterval(createBubble, 500);
+
         const form = document.getElementById('form');
         const progressBarFill = document.getElementById('progress-bar-fill');
         const progressPercent = document.getElementById('progress-percent');

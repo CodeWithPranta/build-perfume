@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LanguageController;
 use App\Mail\ProductSuggestions;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
@@ -8,6 +9,8 @@ use App\Http\Controllers\QuestionAnswerController;
 
 Route::get('/', [QuestionAnswerController::class, 'index']);
 Route::post('/submit-answers', [QuestionAnswerController::class, 'store'])->name('answers.store');
+
+Route::post('/language-switch', [LanguageController::class, 'languageSwitch'])->name('language.switch');
 
 // Route::get('/test-email', function () {
 //     try {
